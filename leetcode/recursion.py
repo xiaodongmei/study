@@ -106,3 +106,27 @@ class Solution_2(object):
         for i in nums:
             nums_count[i] += 1
         return max(nums_count, key=nums_count.get)
+
+"""
+"""
+
+"""
+leetcode_22
+生成有效括号组合
+所有括号的形式，所有有效的
+
+数学归纳法  
+n=1 ...
+递归搜索基础上 + 剪枝：
+局部不合法 + 不再递归
+left用了多少，right用了多少 O(2^n)
+
+右括号的数要少于左括号的数
+有多少个left还没用
+有多少个right还没用
+递归，分治，回溯
+
+递归终止条件放在最前面
+"""
+
+
