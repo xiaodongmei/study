@@ -254,10 +254,104 @@ class Solution(object):
 
 
 """
-将一颗二叉搜索树转化为一个有序的双向链表 leetcode_426
-leetcode_114 二叉树展开为链表
+题目：
+    将一颗二叉搜索树转化为一个有序的双向链表 剑指offer36 / leetcode_426
+二叉树的左孩子指向前驱，右孩子指向后继，双向循环链表，第一个节点的前驱向最后一个节点，最后一个节点的后继
+指向第一个节点
+思想：
+    要把二叉搜索树转化成有序的循环双向链表，则要通过二叉树搜索树的中序遍历（左根右，二叉搜素树的中序遍历是单调递增的有序序列），
+    在二叉树搜索树的中序遍历的中，我们要完成的事情是，进行指针的转化，即对于树中的节点，我们要记录前驱节点pre和当前的节点cur，
+    使得cur.left = pre,pre.right = cur,当pre为空时，说明当前访问的节点是头节点，我们让head = cur，整个遍历的过程都要做
+    这步操作，本节点遍历完，即本操作完之后，我们让pre节点紧跟过去，即pre = cur,当前节点操作完了后，继续中序遍历的模版，遍历右孩子节点
+    经过二叉树的中序遍历后，我们便得到了链表的头节点head，pre此时通过遍历已经走到了链表的结尾，即已经是尾节点了，因为要构建循环双向有序
+    链表，所以我们让尾节点即 pre.right = head，头节点的前驱，head.left = pre，最后返回我们所构造的链表的头节点，返回链表头节点
+注意点：
+    本质就是二叉树中序遍历打印的框架，我们在打印那一步，不做打印，而是完成我们指针转换的操作，记得让pre在本步操作完成之后。然后紧跟过去=cur,
+    当cur为空时，说明我们已经整个二叉树也遍历完成，整个转换也完成了，最后返回头节点
+时间复杂度：O（n）因为整棵树都被遍历了一遍，时间复杂度 O（n）
+空间复杂度：O(n) 这个最坏情况下就是树退化成一个链表，每个都要递归压栈操作，空间复杂度 O(n)
+"""
+
+
+class Solution_1(object):
+    def treeToDoublyList(self, root):
+        """
+        :type root: Node
+        :rtype: Node
+        """
+        if not root:
+            return
+        self.pre = None
+        self.head = None
+
+        def treeToDoublyListCore(cur):
+            if not cur:
+                return
+            treeToDoublyListCore(cur.left)
+            if self.pre:
+                self.pre.right, cur.left = cur, self.pre
+            else:
+                self.head = cur
+            self.pre = cur
+            treeToDoublyListCore(cur.right)
+
+        treeToDoublyListCore(root)
+        self.head.left, self.pre.right = self.pre, self.head
+        return self.head
+
 
 """
+leetcode_114 二叉树展开为链表
+要求：将二叉树先序遍历，展开成单链表，空间复杂度O（1）
+思路：树的先序遍历（根左右），在根操作时，我们需要记录pre和当前节点cur 第一次head = cur,pre =cur，当pre.right = cur,
+pre紧跟过去，pre=cur，然后继续树的先序遍历，遍历树的左子树和右子树，最后遍历完了，说明pre已经指向了最后可以节点，把最后一个节点的
+right置为空，返回head头节点
+注意点：
+遇到了递归堆栈溢出问题
+"""
+
+
+class Solution(object):
+    def flatten(self, root):
+        if not root:
+            return
+        queue = []
+
+        # 前序遍历整棵二叉树，并将遍历的结果放到数组中
+        def dfs(root):
+            if not root:
+                return
+            queue.append(root)
+            dfs(root.left)
+            dfs(root.right)
+
+        dfs(root)
+        head = queue.pop(0)
+        head.left = None
+        # 遍历链表，将链表中的TreeNode节点前后串联起来
+        while queue:
+            tmp = queue.pop(0)
+            tmp.left = None
+            head.right = tmp
+            head = tmp
+
+
+class Solution(object):
+    def flatten(self, root):
+        """
+        :type root: TreeNode
+        :rtype: None Do not return anything, modify root in-place instead.
+        """
+        while root:
+            pleft = root.left
+            if pleft:
+                while pleft.right:
+                    pleft = pleft.right
+                pleft.right = root.right
+                root.right = root.left
+                root.left = None
+            root = root.right
+
 
 """
 重建二叉树 leetcode_105
@@ -266,7 +360,6 @@ leetcode_114 二叉树展开为链表
 
 """
 
-
 """
 二叉树的镜像 leetcode_226 
 """
@@ -274,7 +367,6 @@ leetcode_114 二叉树展开为链表
 """
 求二叉树的深度 leetcode_104
 """
-
 
 """
 剑指offer_33 输入一个数组，判断他是不是二叉树的后序遍历序列
