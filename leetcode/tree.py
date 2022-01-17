@@ -303,40 +303,21 @@ class Solution_1(object):
 """
 leetcode_114 二叉树展开为链表
 要求：将二叉树先序遍历，展开成单链表，空间复杂度O（1）
-思路：树的先序遍历（根左右），在根操作时，我们需要记录pre和当前节点cur 第一次head = cur,pre =cur，当pre.right = cur,
-pre紧跟过去，pre=cur，然后继续树的先序遍历，遍历树的左子树和右子树，最后遍历完了，说明pre已经指向了最后可以节点，把最后一个节点的
-right置为空，返回head头节点
-注意点：
-遇到了递归堆栈溢出问题
+思路：
+方法一：
+    观察二叉树找规律，我们可以用这种思路，找根节点左孩子的最后一个右孩子，
+然后让这个右孩子挂过去，之前当前root节点的右孩子，当前root节点的右孩子指向他的左孩子，然后将他的左孩子置空，
+当前root的操作完成之后，让root = 他的右孩子，root = root.right,进行下一层同等的操作，知道再没有root节点，
+整个二叉树就被我们完美转成了一颗单链表
+这样的话，时间复杂度 O（n）因为本质上，每个节点只遍历了一次
+        空间复杂度O（1）
+方法二：
+    可以利用二叉树的先序遍历，把遍历到的节点都放到一个队列中，然后在二叉树的遍历结束后，从队列中出队，先进去的要先出来，所以是 pop(0),
+    建立我们的单链表
 """
 
 
-class Solution(object):
-    def flatten(self, root):
-        if not root:
-            return
-        queue = []
-
-        # 前序遍历整棵二叉树，并将遍历的结果放到数组中
-        def dfs(root):
-            if not root:
-                return
-            queue.append(root)
-            dfs(root.left)
-            dfs(root.right)
-
-        dfs(root)
-        head = queue.pop(0)
-        head.left = None
-        # 遍历链表，将链表中的TreeNode节点前后串联起来
-        while queue:
-            tmp = queue.pop(0)
-            tmp.left = None
-            head.right = tmp
-            head = tmp
-
-
-class Solution(object):
+class Solution1(object):
     def flatten(self, root):
         """
         :type root: TreeNode
@@ -354,20 +335,238 @@ class Solution(object):
 
 
 """
-重建二叉树 leetcode_105
-从前序和中序序列构建一颗二叉树
+
+"""
+
+
+class Solution2(object):
+    def flatten(self, root):
+        """
+        :type root: TreeNode
+        :rtype: None Do not return anything, modify root in-place instead.
+        """
+        if not root:
+            return
+        queue = []
+
+        def flattenCore(root):
+            if not root:
+                return
+            queue.append(root)
+            flattenCore(root.left)
+            flattenCore(root.right)
+
+        flattenCore(root)
+        head = queue.pop(0)
+        head.left = None
+        while queue:
+            tmp = queue.pop(0)
+            tmp.left = None
+            head.right = tmp
+            head = tmp
 
 
 """
+重建二叉树 leetcode_105
+从前序和中序序列构建一颗二叉树
+preorder = [3, 9, 8, 5, 4, 10, 20, 15, 7]
+inorder = [4, 5, 8, 10, 9, 3, 15, 20, 7]
+
+思路：利用先序序列和中序序列重建二叉树，首先先序序列是：根左右，中序序列：左根右
+所以，先序序列中第一个元素就是我们的根节点，然后在中序序列中找根节点，根节点会把中序序列分为
+两半，左边的就是左子树部分，右边的是右子树部分，我们只需要递归的构造他的左子树和右子树，如果这颗树
+的每个子树的左子树和右子树都构造完毕了（左子树或右子树的序列不再有元素，左孩子或右孩子个数<=1,则说明构造好了）（分治的思路），那么这棵树就构造完成了
+注意点：
+    下标，在中序序列中找到根节点的位置，然后把序列分成了左子树和右子树，再去递归构造子树即可
+    mid = inorder.index(preorder[0])
+    下一次，左子树部分 为：inorder[:mid] preorder[1:mid+1]  第一个元素为根节点，已经建好，我们越过它，再去构造他的子树，树左子树边的长度为mid
+          右子树部分 为：inorder[mid+1] preorder[mid+1:]
+"""
+
+
+class TreeNode(object):
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+
+class Solution(object):
+    def buildTree(self, preorder, inorder):
+        """
+        :type preorder: List[int]
+        :type inorder: List[int]
+        :rtype: TreeNode
+        """
+        if not (preorder and inorder) or len(preorder) != len(inorder):
+            return
+        root = TreeNode(preorder[0])
+        mid = inorder.index(preorder[0])
+        root.left = self.buildTree(preorder[1:mid + 1], inorder[:mid])
+        root.right = self.buildTree(preorder[mid + 1:], inorder[mid + 1:])
+        return root
+
+
+class Solution(object):
+    def invertTree(self, root):
+        """
+        :type root: TreeNode
+        :rtype: TreeNode
+        """
+        if not root:
+            return
+        root.left, root.right = root.right, root.left
+        self.invertTree(root.left)
+        self.invertTree(root.right)
+
 
 """
 二叉树的镜像 leetcode_226 
+思路：
+    有两种方法，
+    方法一：
+        DFS，利用递归法，本质就是交换每个子树的左右孩子。整棵树的左右孩子都被交换了，则也就得到了这棵树的镜像
+        递归结束条件。if not root,root为空，没有子树的左右孩子再需要交换，递归就结束了，
+        如果有root，则交换它的左右孩子，并对它的左子树和右子树递归做同样的操作，左右子树都完成了交换，则整棵树也就都完成了交换，
+        最后返回root，根节点，得到了我们二叉树的镜像
+        时间复杂度：O（n）
+        空间复杂度：O（h），h为树的高度（递归层数）
+    方法二：
+        BFS，广度优先遍历，我们可以利用队列，先进先出，先把root节点压进队列，当队列不为空时，出队，交换他的左右孩子，如果当前的
+        root节点还有左右孩子，那就都压入队列，循环做同样的操作，直到整个队列里都没有元素了，说明整个树的已经被遍历完成，并且得到了
+        此二叉树的镜像
+        时间复杂度：
+            整个树的元素都被遍历了一遍，入库，出队的，所以时间复杂度 O（n）
+        空间复杂度：队列中的元素个数至少有n/2个了。所以，空间复杂度也是 O（n）
+注意点：
 """
+
+
+# 方法一 递归法
+class Solution(object):
+    def invertTree(self, root):
+        """
+        :type root: TreeNode
+        :rtype: TreeNode
+        """
+        if not root:
+            return
+        root.left, root.right = root.right, root.left
+        self.invertTree(root.left)
+        self.invertTree(root.right)
+        return root
+
+
+# 方法二： BFS法
+class Solution(object):
+    def invertTree(self, root):
+        """
+        :type root: TreeNode
+        :rtype: TreeNode
+        """
+        if not root:
+            return
+        queue = [root]
+        while queue:
+            tmp = queue.pop(0)
+            tmp.left, tmp.right = tmp.right, tmp.left
+            if tmp.left:
+                queue.append(tmp.left)
+            if tmp.right:
+                queue.append(tmp.right)
+        return root
+
 
 """
 求二叉树的深度 leetcode_104
+方法一：DFS
+    二叉树的深度就是，二叉树到叶子节点的路径最长的那条节点的个数，等于它的左子树和右子树中这两者中最大的深度 + 本层的深度（1）
+    二叉树的左子树就等于它的左子树对应的左子树和右子树中这两者中最大的深度 + 本层的深度（1）
+    二叉树的右子树就等于它的左子树对应的左子树和右子树中这两者中最大的深度 + 本层的深度（1）
+    所以，我们可以利用递归的写法，求得二叉树的左子树和右子树中这两者中最大者的深度+1，返回得到本二叉树的深度
+    时间复杂度 O（n)
+    空间复杂度 O（h）h为二叉树的高度
+方法二：BFS
+    可以利用层次遍历，借用队列，把本层的节点全部压入，并在里层控制一个循环，把当前本层的节点都出掉，出完了，说明本层也完了，深度+1，
+    同时在这个过程中，把下一层的节点也放进去了，循环就好了，到最后，队列中没有元素了，说明整个树也遍历完了，也得到了我们二叉树的深度，
+    返回即可
+    时间复杂度：O（n）
+    空间复杂度：O（n）
 """
 
+
+# DFS
+class Solution(object):
+    def maxDepth(self, root):
+        """
+        :type root: TreeNode
+        :rtype: int
+        """
+        if not root:
+            return 0
+        l = self.maxDepth(root.left)
+        r = self.maxDepth(root.right)
+        return max(l, r) + 1
+
+
+# BFS
+class Solution(object):
+    def maxDepth(self, root):
+        """
+        :type root: TreeNode
+        :rtype: int
+        """
+        if not root:
+            return 0
+        queue = [root]
+        depth = 0
+        while queue:
+            n = len(queue)
+            for i in range(n):
+                node = queue.pop(0)
+                if node.left:
+                    queue.append(node.left)
+                if node.right:
+                    queue.append(node.right)
+            depth += 1
+        return depth
+
+
 """
-剑指offer_33 输入一个数组，判断他是不是二叉树的后序遍历序列
+二叉搜索树的后序遍历序列
+剑指offer_33 输入一个数组，判断他是不是二叉树搜索树的后序遍历序列
+思路：
+[1,6,3,2,5]
+[1,3,2,6,5]
+二叉搜索树的后序遍历：
+    左右根，说明整个序列最后一个节点为根节点，
+    那么序列从前往后找到的第一个比根节点大的，即是右孩子，后面部分， 从这个节点到根节点前的都是右子树，因为是二叉搜索树，所以整个右子树都应该比根节点大，如有
+    比根节点小的，说明它不是二叉搜索树的后序遍历序列，
+    递归的检查他的子树是否也满足：父节点比左孩子（左子树）大，比右孩子（右子树）小，
+    如果每子树都满足，则说明他是二叉搜索树的后序遍历序列，如果 L >=r 说明都没有左右孩子了。不可再划分了，直接返回true
+注意点：l >= r 说明都没有元素可以划分了，这本质也是一种递归分治的思路，注意过程中元素的赋值
 """
+
+
+class Solution(object):
+    def verifyPostorder(self, postorder):
+        """
+        :type postorder: List[int]
+        :rtype: bool
+        """
+
+        def verifyPostorderCore(l, r):
+            if l >= r:
+                return True
+            root = postorder[r]
+            k = l
+            while k < r and postorder[k] < root:
+                k += 1
+            j = k
+            while j < r:
+                if postorder[j] < root:
+                    return False
+                j += 1
+            return verifyPostorderCore(l, k - 1) and verifyPostorderCore(k, r - 1)
+
+        return verifyPostorderCore(0, len(postorder) - 1)
