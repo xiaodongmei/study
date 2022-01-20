@@ -1,4 +1,59 @@
 """
+买卖股票的最佳时间系列
+
+"""
+
+"""
+动态规划 leetcode_70 爬楼梯
+"""
+
+
+# f（n）= f(n-1) + f(n-2)
+
+def climstairs(n):
+    if n == 0 or n == 1:
+        return 1
+    return climstairs(n-1) + climstairs(n-2)
+
+
+
+
+
+
+
+
+
+
+
+# 记忆话搜索我
+def climstairs_1(n):
+    def climstairscore(n):
+        mem = [-1] * (n+1)
+        mem[0],mem[1] = 1,1
+        if mem[n] == -1:
+            mem[n] =
+
+        return  mem[i]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""
 贪心算法：问题可以分解成子问题来解决，每个子问题的最优解可以推导出最终问题的最优解，拥有最优子结构
         贪心算法在对当下做出最优的选择后，不具体回退功能，但是动态规划可以回退，会保存之前的结果，
         最终选择出问题整体的最优解决方式
