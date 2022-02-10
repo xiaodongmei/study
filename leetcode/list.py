@@ -14,6 +14,7 @@
 """
 
 
+# leetcode_206
 # 链表的逆置
 class Solution(object):
     def reverseList(self, head):
@@ -30,7 +31,7 @@ class Solution(object):
         return pre
 
 
-# 从尾到头打印链表
+# 从尾到头打印链表 剑指 Offer 06
 # 方法一 可以利用栈的特性 先进后出
 """
 思路：从尾到头打印链表，可以利用栈，先把节点都压进栈，利用栈后进先出的特性，完成从尾到头打印链表
@@ -75,7 +76,7 @@ class Solution(object):
         return res
 
 
-# 判断链表是否有环
+# 判断链表是否有环 leetcode_141
 """
 思路：通过快慢指针就可以了，慢指针每次走一步，快指针走两步，如果他们两个相遇了，那肯定有环
 注意点：需要判断slow and fast and fast.next 有值，防止越界
@@ -134,7 +135,7 @@ class Solution(object):
         return None
 
 
-# 找链表中的倒数第k个节点
+# 找链表中的倒数第k个节点 剑指 Offer 22
 
 """
 思路：
@@ -169,7 +170,7 @@ class Solution(object):
         return pBehind
 
 
-# 找两个链表的第一个公共节点
+# 找两个链表的第一个公共节点 剑指 Offer 52
 """
 有两种解法：
 解法一：如果我们求出两个链表的长度，便可以得到他们的长度差，让长的那个先走diff步，然后两个指针仔同时走
@@ -235,7 +236,7 @@ class Solution(object):
 
 
 """
-合并两个有序的链表
+合并两个有序的链表 leetcode_21
 有两种方法：
 解法一：
 思想：
